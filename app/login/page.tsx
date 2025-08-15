@@ -9,13 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 const COORDINATOR_EMAIL = "amitycodingclub@gmail.com"
-const DEFAULT_EMAIL = "amitycodingclub@gmail.com"
-const DEFAULT_PASSWORD = "acc@321"
 
 export default function LoginPage() {
     const router = useRouter()
-    const [email, setEmail] = useState(DEFAULT_EMAIL)
-    const [password, setPassword] = useState(DEFAULT_PASSWORD)
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -40,21 +38,7 @@ export default function LoginPage() {
             }
             router.replace("/")
         } catch (err: any) {
-            if (err.code === 'auth/user-not-found') {
-                // Auto-provision coordinator account (first-time setup)
-                try {
-                    const newUser = await createUserWithEmailAndPassword(auth, email, password)
-                    if (newUser.user.email === COORDINATOR_EMAIL) {
-                        router.replace("/")
-                        return
-                    } else {
-                        setError("Created but not authorized")
-                        return
-                    }
-                } catch (createErr: any) {
-                    setError(createErr.message || 'Failed to create coordinator user')
-                }
-            } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+            if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
                 setError('Invalid credentials')
             } else if (err.code === 'auth/invalid-email') {
                 setError('Invalid email format')
@@ -91,7 +75,7 @@ export default function LoginPage() {
                         {loading ? 'Signing in...' : 'Login'}
                     </Button>
                 </form>
-                <p className="text-xs text-gray-400 text-center">Use default credentials or your assigned coordinator account.</p>
+                <p className="text-xs text-gray-400 text-center">Enter assigned coordinator credentials. No autofill for security.</p>
             </Card>
         </div>
     )
