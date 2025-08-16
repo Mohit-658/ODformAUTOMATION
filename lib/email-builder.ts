@@ -22,6 +22,6 @@ export function buildPlainTextEmail(subjects: SubjectPayload[], students: Studen
     }
     lines.push('')
     lines.push('Regards,')
-    lines.push('Amity Coding Club')
+    lines.push('ACConduty')
     return lines.join('\n')
 }

@@ -1,4 +1,4 @@
-# Amity Coding Club OD Form
+# ACConduty
 
 A modern, interactive OD (On Duty) form submission system built with Next.js and React.
 
