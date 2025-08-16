@@ -8,8 +8,7 @@ import { ArrowRight, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Typewriter } from "@/components/typewriter"
-import { ODForm } from "@/components/od-form"
-import { MultipleEntry } from "@/components/multiple-entry"
+// Form components now live on dedicated routes (/single, /multiple)
 import { signOutUser } from "@/lib/auth"
 
 const COORDINATOR_EMAIL = "amitycodingclub@gmail.com"
@@ -21,8 +20,6 @@ export default function ODFormPage() {
   // Form / selection UI state hooks must be declared unconditionally (before any returns)
   const [selectedOption, setSelectedOption] = useState<"single" | "multiple">("single")
   const [showSecondText, setShowSecondText] = useState(false)
-  const [showForm, setShowForm] = useState(false)
-  const [showMultipleEntry, setShowMultipleEntry] = useState(false)
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -48,16 +45,8 @@ export default function ODFormPage() {
   }
 
   const handleArrowClick = () => {
-    if (selectedOption === "single") {
-      setShowForm(true)
-    } else if (selectedOption === "multiple") {
-      setShowMultipleEntry(true)
-    }
-  }
-
-  const handleBackToSelection = () => {
-    setShowForm(false)
-    setShowMultipleEntry(false)
+    if (selectedOption === 'single') router.push('/single')
+    else router.push('/multiple')
   }
 
   const handleLogout = async () => {
@@ -67,14 +56,6 @@ export default function ODFormPage() {
     } catch (e) {
       console.error("Failed to sign out", e)
     }
-  }
-
-  if (showForm) {
-    return <ODForm onBack={handleBackToSelection} />
-  }
-
-  if (showMultipleEntry) {
-    return <MultipleEntry onBack={handleBackToSelection} />
   }
 
   return (
