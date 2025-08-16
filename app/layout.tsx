@@ -19,7 +19,12 @@ const jura = Jura({
 export const metadata: Metadata = {
   title: "ACConduty",
   description: "ACConduty - OD form automation",
-  generator: 'v0.app'
+  generator: 'v0.app',
+  icons: {
+    icon: "/images/image.png",
+    shortcut: "/images/image.png",
+    apple: "/images/image.png"
+  }
 }
 
 export default function RootLayout({
