@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { signInWithEmailAndPassword, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth"
+import Image from "next/image"
 import { auth } from "@/firebase"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -55,8 +56,18 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
             <Card className="w-full max-w-md p-8 space-y-6 bg-white">
-                <div className="text-center space-y-2">
-                    <img src="/images/acc-logo.png" alt="logo" className="w-20 h-20 mx-auto" />
+                <div className="text-center space-y-3">
+                    {/* Logo: using Next/Image for proper intrinsic sizing & crisp scaling */}
+                    <div className="mx-auto w-28 h-24 relative">
+                        <Image
+                            src="/images/image.png"
+                            alt="ACConduty Logo"
+                            fill
+                            priority
+                            className="object-contain"
+                            sizes="112px"
+                        />
+                    </div>
                     <h1 className="text-2xl font-grandiflora">Coordinator Login</h1>
                     <p className="text-sm text-gray-500">Restricted access</p>
                 </div>
