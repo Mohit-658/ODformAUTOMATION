@@ -19,6 +19,7 @@ interface MultipleEntryProps {
 export function MultipleEntry({ onBack }: MultipleEntryProps) {
   const [selectedFileType, setSelectedFileType] = useState<"spreadsheet" | "csv" | null>(null)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [counts, setCounts] = useState<{ subjects: number; students: number }>({ subjects: 0, students: 0 })
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -133,6 +134,7 @@ export function MultipleEntry({ onBack }: MultipleEntryProps) {
       })
       setSavedId(id)
       setSaveMsg(`Saved bulk entry (ID: ${id}) Subjects: ${subjects.length}, Students: ${students.length}`)
+      setCounts({ subjects: subjects.length, students: students.length })
       // Build one email per student referencing all subjects
       const emails = students.map(st =>
         buildPlainTextEmail(subjects, [st], { mode: 'multiple', timetableFileUrl: null })
@@ -189,33 +191,34 @@ export function MultipleEntry({ onBack }: MultipleEntryProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-teal-50 relative overflow-hidden">
       {/* Header with Logo and Back Button */}
-      <div className="p-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/images/acc-logo.png" alt="Amity Coding Club Logo" className="w-20 h-20 object-contain" />
-          </div>
+      <div className="p-6 md:p-10">
+        <div className="flex items-center gap-4">
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 rounded-full px-6 bg-transparent"
+            className="flex items-center gap-2 rounded-full px-6 bg-transparent order-2 md:order-none"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
+          <img src="/images/acc-logo.png" alt="Amity Coding Club Logo" className="w-16 h-16 object-contain drop-shadow" />
+          <div>
+            <h1 className="text-2xl md:text-3xl font-grandiflora text-black leading-tight">Multiple OD Entry</h1>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col items-center justify-center px-8 pt-2 pb-32">
-        <div className="text-center mb-8">
-          <h2 className="text-4xl font-grandiflora text-black mb-4">Multiple Entry</h2>
-          <p className="text-xl font-grandiflora text-black">Upload your file to generate mails </p>
+      <div className="flex flex-col items-center justify-center px-6 md:px-10 pt-2 pb-40">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-grandiflora text-black mb-3">Bulk Upload</h2>
+          <p className="text-base md:text-lg font-jura text-gray-600 max-w-xl">Supported formats: CSV (.csv) or Spreadsheet (.xlsx). Include rows for subjects & students; they'll be auto-detected.</p>
         </div>
 
         {/* Upload Card */}
-        <Card className="w-full max-w-2xl p-8 shadow-lg bg-white rounded-3xl relative z-10">
+        <Card className="w-full max-w-3xl p-6 md:p-10 shadow-lg bg-white/80 backdrop-blur rounded-3xl relative z-10 border border-teal-100">
           <div className="space-y-6">
             {/* File Type Selection */}
             <div>
@@ -247,11 +250,11 @@ export function MultipleEntry({ onBack }: MultipleEntryProps) {
             {/* File Upload */}
             <div>
               <Label className="text-lg font-medium text-gray-700 mb-3 block">Upload File</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-teal-500 transition-colors">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <div className="space-y-2">
-                  <p className="text-gray-600">
-                    {uploadedFile ? uploadedFile.name : "Drag and drop your file here, or click to browse"}
+              <div className="border-2 border-dashed border-teal-200 rounded-xl p-8 text-center hover:border-teal-400 transition-colors bg-teal-50/30">
+                <Upload className="w-12 h-12 text-teal-400 mx-auto mb-4" />
+                <div className="space-y-3">
+                  <p className="text-gray-600 font-jura text-sm">
+                    {uploadedFile ? <span className="text-teal-700 font-medium">{uploadedFile.name}</span> : "Drag & drop or click to browse"}
                   </p>
                   <input
                     type="file"
@@ -262,21 +265,21 @@ export function MultipleEntry({ onBack }: MultipleEntryProps) {
                   />
                   <Label
                     htmlFor="file-upload"
-                    className="inline-block bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg cursor-pointer transition-colors"
+                    className="inline-block bg-white/80 hover:bg-white text-teal-700 border border-teal-300 px-4 py-2 rounded-full cursor-pointer transition-colors shadow"
                   >
-                    Choose File
+                    {uploadedFile ? 'Change File' : 'Choose File'}
                   </Label>
                 </div>
               </div>
             </div>
 
             {/* Generate Mails Button */}
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center pt-2">
               <div className="flex flex-col items-center gap-2">
                 <Button
                   onClick={handleGenerateMails}
                   disabled={!uploadedFile || saving}
-                  className="bg-black text-white hover:bg-black/90 rounded-full px-8 py-3 font-jura text-lg"
+                  className="bg-gradient-to-r from-black to-teal-700 text-white hover:from-black hover:to-teal-600 rounded-full px-10 py-3 font-jura text-lg shadow disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? "Saving..." : "Generate Mails"}
                 </Button>
@@ -284,22 +287,25 @@ export function MultipleEntry({ onBack }: MultipleEntryProps) {
               </div>
             </div>
             {generatedMail && (
-              <Card className="p-6 space-y-4 mt-6">
-                <h2 className="text-xl font-semibold text-black">Generated Mail</h2>
+              <Card className="p-6 md:p-8 space-y-5 mt-10 bg-white/90 backdrop-blur border border-teal-100 shadow">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-black">Generated Mails</h2>
+                  <span className="text-xs text-gray-500">Per student • separated by ---</span>
+                </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label className="block mb-2">To (Recipient Email)</Label>
-                    <input value={toEmail} onChange={e => setToEmail(e.target.value)} placeholder="recipient@example.com" className="border rounded-md w-full p-2 text-sm" />
+                    <input value={toEmail} onChange={e => setToEmail(e.target.value)} placeholder="email1@example.com, email2@example.com" className="border rounded-md w-full p-2 text-sm" />
                   </div>
                 </div>
                 <textarea
                   readOnly
                   value={generatedMail}
-                  className="w-full h-64 text-sm font-mono p-3 border rounded-md bg-gray-50"
+                  className="w-full h-72 text-xs md:text-sm font-mono p-3 border rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <Button type="button" variant="outline" onClick={handleCopy} className="rounded-full">Copy</Button>
-                  <Button type="button" onClick={handleSend} disabled={sending} className="rounded-full bg-teal-600 hover:bg-teal-700 text-white">
+                  <Button type="button" onClick={handleSend} disabled={sending} className="rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow">
                     {sending ? 'Sending...' : 'Send All Emails'}
                   </Button>
                 </div>
