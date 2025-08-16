@@ -117,6 +117,24 @@ export function ODForm({ onBack }: ODFormProps) {
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<string | null>(null)
 
+  // Computed form completeness (all subject & student fields + timetable file present)
+  const isSubjectsComplete = subjects.every(s =>
+    s.subjectName.trim() &&
+    s.subjectCode.trim() &&
+    s.timeSlot.trim() &&
+    s.facultyName.trim() &&
+    s.facultyCode.trim() &&
+    s.date.trim()
+  )
+  const isStudentsComplete = students.every(st =>
+    st.name.trim() &&
+    st.semester.trim() &&
+    st.course.trim() &&
+    st.section.trim() &&
+    st.enrollmentNo.trim()
+  )
+  const isFormComplete = isSubjectsComplete && isStudentsComplete && !!timetableFile
+
   const handleSubmit = async () => {
     setSaving(true)
     setSaveError(null)
@@ -422,11 +440,14 @@ export function ODForm({ onBack }: ODFormProps) {
         <div className="flex flex-col items-center gap-3">
           <Button
             onClick={handleSubmit}
-            disabled={saving}
-            className="px-8 py-3 bg-black text-white hover:bg-black/90 rounded-full font-jura"
+            disabled={saving || !isFormComplete}
+            className="px-8 py-3 bg-black text-white hover:bg-black/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-full font-jura"
           >
             {saving ? "Saving..." : "Generate Mail"}
           </Button>
+          {!isFormComplete && (
+            <p className="text-xs text-gray-500">Fill all subject, student fields and upload timetable to enable.</p>
+          )}
           {savedId && <p className="text-sm text-green-600">Saved (ID: {savedId})</p>}
           {saveError && <p className="text-sm text-red-600">{saveError}</p>}
         </div>
