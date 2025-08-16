@@ -158,9 +158,14 @@ export default function ODFormPage() {
         </Card>
       </div>
 
-      {/* Decorative Wave */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 320" className="w-full h-auto" preserveAspectRatio="none">
+      {/* Decorative Wave (mobile widened) */}
+      <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
+        <svg
+          viewBox="0 0 1440 320"
+          className="h-auto w-[160%] -ml-[30%] sm:ml-0 sm:w-full"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
           <path
             fill="#14b8a6"
             fillOpacity="1"
