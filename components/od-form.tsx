@@ -1,15 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { saveODForm } from "@/lib/firestore"
-import { storage } from "@/firebase"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Upload, Plus, Minus, ArrowLeft } from "lucide-react"
+import { Plus, Minus, ArrowLeft } from "lucide-react"
 import { buildPlainTextEmail } from "@/lib/email-builder"
 
 interface Student {
@@ -41,7 +39,6 @@ export function ODForm({ onBack }: ODFormProps) {
   const [students, setStudents] = useState<Student[]>([
     { id: "1", name: "", semester: "", course: "", section: "", enrollmentNo: "" }
   ])
-  const [timetableFile, setTimetableFile] = useState<File | null>(null)
 
   const handleSubjectCountChange = (count: number) => {
     setNumberOfSubjects(count)
@@ -73,9 +70,7 @@ export function ODForm({ onBack }: ODFormProps) {
     setStudents(prev => prev.map(st => st.id === id ? { ...st, [field]: value } : st))
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]; if (f) setTimetableFile(f)
-  }
+  // Timetable upload removed
 
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -92,17 +87,12 @@ export function ODForm({ onBack }: ODFormProps) {
   const studentProgress = Math.round((studentsCompleteCount / students.length) * 100)
   const isSubjectsComplete = subjectsCompleteCount === subjects.length
   const isStudentsComplete = studentsCompleteCount === students.length
-  const isFormComplete = isSubjectsComplete && isStudentsComplete && !!timetableFile
+  const isFormComplete = isSubjectsComplete && isStudentsComplete
 
   const handleSubmit = async () => {
     setSaving(true); setSaveError(null); setSavedId(null)
     try {
-      let timetableFileUrl: string | null = null
-      if (timetableFile) {
-        const fileRef = ref(storage, `timetables/${Date.now()}-${timetableFile.name}`)
-        await uploadBytes(fileRef, timetableFile)
-        timetableFileUrl = await getDownloadURL(fileRef)
-      }
+      const timetableFileUrl: string | null = null
       const id = await saveODForm({
         subjects: subjects.map(({ id, ...rest }) => rest),
         students: students.map(({ id, ...rest }) => rest),
@@ -153,7 +143,7 @@ export function ODForm({ onBack }: ODFormProps) {
           <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4 mb-6">
             <div>
               <h2 className="text-xl font-semibold text-black">Subject Details</h2>
-              <p className="text-xs text-gray-500 mt-1">Provide timetable & faculty info for each subject</p>
+              <p className="text-xs text-gray-500 mt-1">Provide subject & faculty info for each subject</p>
             </div>
             <div className="flex items-center gap-3">
               <Label className="text-xs font-medium">Subjects</Label>
@@ -178,22 +168,7 @@ export function ODForm({ onBack }: ODFormProps) {
               </Card>
             ))}
           </div>
-          {/* Timetable Upload */}
-          <div className="mt-8">
-            <Label className="text-sm font-medium mb-3 block">Upload Timetable Image</Label>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <div>
-                <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" id="timetable-upload" />
-                <Button variant="outline" onClick={() => document.getElementById('timetable-upload')?.click()} className="flex items-center gap-2"><Upload className="w-4 h-4" />{timetableFile ? 'Change File' : 'Upload Timetable'}</Button>
-              </div>
-              {timetableFile && (
-                <div className="flex items-center gap-4">
-                  <span className="text-xs px-3 py-1 rounded-full bg-teal-100 text-teal-700 font-medium border border-teal-200">{timetableFile.name}</span>
-                  <div className="w-24 h-16 rounded border overflow-hidden bg-white shadow-inner"><img src={URL.createObjectURL(timetableFile)} alt="preview" className="w-full h-full object-cover" /></div>
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Timetable upload removed */}
         </Card>
 
         {/* Students Section */}
@@ -224,7 +199,7 @@ export function ODForm({ onBack }: ODFormProps) {
         {/* Submit / Generate */}
         <div className="flex flex-col items-center gap-4">
           <Button onClick={handleSubmit} disabled={saving || !isFormComplete} className="px-10 py-3 bg-gradient-to-r from-black to-teal-700 text-white hover:from-black hover:to-teal-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-full font-jura shadow">{saving ? 'Saving...' : 'Generate Mail'}</Button>
-          {!isFormComplete && <p className="text-xs text-gray-500">Fill all subject, student fields and upload timetable to enable.</p>}
+          {!isFormComplete && <p className="text-xs text-gray-500">Fill all subject & student fields to enable.</p>}
           {savedId && <p className="text-sm text-green-600">Saved (ID: {savedId})</p>}
           {saveError && <p className="text-sm text-red-600">{saveError}</p>}
         </div>
