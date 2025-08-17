@@ -1,65 +1,74 @@
-# ACConduty
+# ODformAUTOMATION
 
-A modern, interactive OD (On Duty) form submission system built with Next.js and React.
+ODformAUTOMATION is a web application designed to automate the process of submitting and managing OD (On-Duty) forms, streamlining workflows for students and administrators. It provides a user-friendly interface to facilitate requests, approvals, and record-keeping.
+
+## Tech Stack
+
+- **Frontend:** Next.js, React, TypeScript
+- **Backend:** Firebase (Authentication, Firestore Database)
+- **Styling:** Tailwind CSS
+- **Deployment:** Vercel
 
 ## Features
 
-- Single entry form with dynamic subject selection
-- Multiple entry with file upload (CSV/Spreadsheet)
-- Typewriter animations
-- Responsive design with Tailwind CSS
-- Custom fonts (Grandiflora One, JURA)
+- **Automated OD Form Submission:** Easily fill and submit OD forms online.
+- **Admin Dashboard:** Manage, approve, or reject OD requests efficiently.
+- **Firebase Integration:** Secure authentication and real-time data management.
+- **Responsive Design:** Optimized for desktop and mobile devices.
+- **Custom Components:** Modular architecture for easy maintenance and extensibility.
+
+## Live Demo
+
+Visit the live application: [ODformAUTOMATION](https://o-dform-automation.vercel.app)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18.17 or later
-- npm, yarn, or pnpm
+- Node.js (v18+ recommended)
+- PNPM (or npm/yarn)
+- Firebase Project (for authentication and database)
 
 ### Installation
 
-1. Clone or download the project
-2. Install dependencies:
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Mohit-658/ODformAUTOMATION.git
+   cd ODformAUTOMATION
+   ```
 
-\`\`\`bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-\`\`\`
+2. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
 
-3. Create the public/images directory and add the ACC logo:
-\`\`\`bash
-mkdir -p public/images
-\`\`\`
-Add your `acc-logo.png` file to the `public/images/` directory.
+3. **Configure Firebase:**
+   - Update your Firebase credentials in the config files.
 
-4. Run the development server:
-
-\`\`\`bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-\`\`\`
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. **Run the development server:**
+   ```bash
+   pnpm dev
+   ```
+   The app will be available at `http://localhost:3000`.
 
 ## Project Structure
 
-- `app/` - Next.js app router pages and layouts
-- `components/` - Reusable React components
-- `lib/` - Utility functions
-- `public/` - Static assets
+- `/app` - Main application logic and pages
+- `/components` - Reusable UI components
+- `/firebase` - Firebase configuration and helpers
+- `/hooks` - Custom React hooks
+- `/lib` - Utility libraries
+- `/public` - Static assets
+- `/styles` - CSS/SCSS files
 
-## Technologies Used
+## Contributing
 
-- Next.js 15
-- React 19
-- TypeScript
-- Tailwind CSS v4
-- Radix UI components
-- Lucide React icons
+Contributions are welcome! Please open issues or pull requests for improvements or bug fixes.
+
+## License
+
+This project currently does not specify a license.
+
+## Author
+
+- [Mohit-658](https://github.com/Mohit-658)
