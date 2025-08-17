@@ -7,7 +7,9 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Minus, ArrowLeft } from "lucide-react"
+import { Plus, Minus, ArrowLeft, Calendar as CalendarIcon } from "lucide-react"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 import { buildPlainTextEmail } from "@/lib/email-builder"
 
 interface Student {
@@ -206,7 +208,35 @@ export function ODForm({ onBack }: ODFormProps) {
                   <div><Label className="block mb-2">Time Slot</Label><Select value={subject.timeSlot} onValueChange={v => updateSubject(subject.id, 'timeSlot', v)}><SelectTrigger><SelectValue placeholder="Choose time" /></SelectTrigger><SelectContent>{['09:15 AM - 10:10 AM', '10:15 AM - 11:10 AM', '11:15 AM - 12:10 PM', '12:15 PM - 01:10 PM', '01:15 PM - 02:10 PM', '02:15 PM - 03:10 PM', '03:15 PM - 04:10 PM', '04:15 PM - 05:10 PM'].map(slot => (<SelectItem key={slot} value={slot}>{slot}</SelectItem>))}</SelectContent></Select></div>
                   <div><Label htmlFor={`fname-${subject.id}`} className="block mb-2">Faculty Name</Label><Input id={`fname-${subject.id}`} value={subject.facultyName} onChange={e => updateSubject(subject.id, 'facultyName', e.target.value)} placeholder="Enter faculty name" /></div>
                   <div><Label htmlFor={`fcode-${subject.id}`} className="block mb-2">Faculty Code</Label><Input id={`fcode-${subject.id}`} value={subject.facultyCode} onChange={e => updateSubject(subject.id, 'facultyCode', e.target.value)} placeholder="Enter faculty code" /></div>
-                  <div><Label htmlFor={`date-${subject.id}`} className="block mb-2">Date</Label><Input id={`date-${subject.id}`} type="date" value={subject.date} onChange={e => updateSubject(subject.id, 'date', e.target.value)} /></div>
+                  <div>
+                    <Label htmlFor={`date-${subject.id}`} className="block mb-2">Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={`w-full justify-start text-left font-normal ${!subject.date ? 'text-muted-foreground' : ''}`}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 text-teal-600" />
+                          {subject.date ? new Date(subject.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Pick a date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-2 w-auto" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={subject.date ? new Date(subject.date) : undefined}
+                          onSelect={(d) => {
+                            if (!d) return
+                            // store as YYYY-MM-DD for consistency
+                            const iso = d.toISOString().split('T')[0]
+                            updateSubject(subject.id, 'date', iso)
+                          }}
+                          // Disable future dates > 1 year ahead just as a guard (optional)
+                          disabled={(d) => d > new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
               </Card>
             ))}
@@ -226,8 +256,8 @@ export function ODForm({ onBack }: ODFormProps) {
                 onClick={toggleWholeClassMode}
                 variant={isWholeClassMode ? "default" : "outline"}
                 className={`rounded-full text-sm ${isWholeClassMode
-                    ? "bg-teal-600 hover:bg-teal-700 text-white"
-                    : "border-teal-300 text-teal-700 hover:bg-teal-50"
+                  ? "bg-teal-600 hover:bg-teal-700 text-white"
+                  : "border-teal-300 text-teal-700 hover:bg-teal-50"
                   }`}
               >
                 {isWholeClassMode ? "Individual Mode" : "Whole Class"}
