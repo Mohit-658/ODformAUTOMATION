@@ -39,6 +39,12 @@ export function ODForm({ onBack }: ODFormProps) {
   const [students, setStudents] = useState<Student[]>([
     { id: "1", name: "", semester: "", course: "", section: "", enrollmentNo: "" }
   ])
+  const [isWholeClassMode, setIsWholeClassMode] = useState(false)
+  const [classDetails, setClassDetails] = useState({
+    semester: "",
+    course: "",
+    section: ""
+  })
 
   const handleSubjectCountChange = (count: number) => {
     setNumberOfSubjects(count)
@@ -68,6 +74,43 @@ export function ODForm({ onBack }: ODFormProps) {
 
   const updateStudent = (id: string, field: keyof Student, value: string) => {
     setStudents(prev => prev.map(st => st.id === id ? { ...st, [field]: value } : st))
+  }
+
+  const toggleWholeClassMode = () => {
+    if (!isWholeClassMode) {
+      // Switching to whole class mode - extract common details from first student
+      const firstStudent = students[0]
+      if (firstStudent) {
+        setClassDetails({
+          semester: firstStudent.semester,
+          course: firstStudent.course,
+          section: firstStudent.section
+        })
+      }
+    } else {
+      // Switching back to individual mode - clear class details
+      setClassDetails({ semester: "", course: "", section: "" })
+    }
+    setIsWholeClassMode(!isWholeClassMode)
+  }
+
+  const updateClassDetails = (field: keyof typeof classDetails, value: string) => {
+    setClassDetails(prev => ({ ...prev, [field]: value }))
+    // Auto-update all students with the new class details
+    if (isWholeClassMode) {
+      setStudents(prev => prev.map(st => ({ ...st, [field]: value })))
+    }
+  }
+
+  const addStudentInWholeClassMode = () => {
+    setStudents(prev => [...prev, {
+      id: (prev.length + 1).toString(),
+      name: "",
+      enrollmentNo: "",
+      semester: classDetails.semester,
+      course: classDetails.course,
+      section: classDetails.section
+    }])
   }
 
   // Timetable upload removed
@@ -174,22 +217,156 @@ export function ODForm({ onBack }: ODFormProps) {
         {/* Students Section */}
         <Card className="p-6 md:p-8 shadow-lg border-teal-100 bg-white/80 backdrop-blur">
           <div className="flex items-center justify-between mb-6">
-            <div><h2 className="text-xl font-semibold text-black">Student Details</h2><p className="text-xs text-gray-500 mt-1">List each participating student</p></div>
-            <Button onClick={addStudent} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 rounded-full"><Plus className="w-4 h-4" />Add Student</Button>
+            <div>
+              <h2 className="text-xl font-semibold text-black">Student Details</h2>
+              <p className="text-xs text-gray-500 mt-1">List each participating student</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={toggleWholeClassMode}
+                variant={isWholeClassMode ? "default" : "outline"}
+                className={`rounded-full text-sm ${isWholeClassMode
+                    ? "bg-teal-600 hover:bg-teal-700 text-white"
+                    : "border-teal-300 text-teal-700 hover:bg-teal-50"
+                  }`}
+              >
+                {isWholeClassMode ? "Individual Mode" : "Whole Class"}
+              </Button>
+              <Button
+                onClick={isWholeClassMode ? addStudentInWholeClassMode : addStudent}
+                className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 rounded-full"
+              >
+                <Plus className="w-4 h-4" />Add Student
+              </Button>
+            </div>
           </div>
+
+          {/* Whole Class Details */}
+          {isWholeClassMode && (
+            <Card className="p-4 mb-6 bg-blue-50/50 border border-blue-200">
+              <h3 className="font-medium text-blue-800 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                Class Details (Applied to All Students)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label className="block mb-2">Semester</Label>
+                  <Input
+                    value={classDetails.semester}
+                    onChange={e => updateClassDetails('semester', e.target.value)}
+                    placeholder="Enter semester"
+                  />
+                </div>
+                <div>
+                  <Label className="block mb-2">Course</Label>
+                  <Input
+                    value={classDetails.course}
+                    onChange={e => updateClassDetails('course', e.target.value)}
+                    placeholder="Enter course"
+                  />
+                </div>
+                <div>
+                  <Label className="block mb-2">Section</Label>
+                  <Input
+                    value={classDetails.section}
+                    onChange={e => updateClassDetails('section', e.target.value)}
+                    placeholder="Enter section"
+                  />
+                </div>
+              </div>
+            </Card>
+          )}
+
           <div className="space-y-6">
             {students.map((student, i) => (
               <Card key={student.id} className="p-4 bg-teal-50/30 border border-teal-100">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-medium">Student {i + 1}</h3>
-                  {students.length > 1 && <Button variant="ghost" size="sm" onClick={() => removeStudent(student.id)} className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full"><Minus className="w-4 h-4" /></Button>}
+                  {students.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeStudent(student.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div><Label htmlFor={`name-${student.id}`} className="block mb-2">Name</Label><Input id={`name-${student.id}`} value={student.name} onChange={e => updateStudent(student.id, 'name', e.target.value)} placeholder="Enter name" /></div>
-                  <div><Label htmlFor={`sem-${student.id}`} className="block mb-2">Semester</Label><Input id={`sem-${student.id}`} value={student.semester} onChange={e => updateStudent(student.id, 'semester', e.target.value)} placeholder="Enter semester" /></div>
-                  <div><Label htmlFor={`course-${student.id}`} className="block mb-2">Course</Label><Input id={`course-${student.id}`} value={student.course} onChange={e => updateStudent(student.id, 'course', e.target.value)} placeholder="Enter course" /></div>
-                  <div><Label htmlFor={`section-${student.id}`} className="block mb-2">Section</Label><Input id={`section-${student.id}`} value={student.section} onChange={e => updateStudent(student.id, 'section', e.target.value)} placeholder="Enter section" /></div>
-                  <div className="md:col-span-2"><Label htmlFor={`enroll-${student.id}`} className="block mb-2">Enrollment No</Label><Input id={`enroll-${student.id}`} value={student.enrollmentNo} onChange={e => updateStudent(student.id, 'enrollmentNo', e.target.value)} placeholder="Enter enrollment number" /></div>
+                  <div>
+                    <Label htmlFor={`name-${student.id}`} className="block mb-2">Name</Label>
+                    <Input
+                      id={`name-${student.id}`}
+                      value={student.name}
+                      onChange={e => updateStudent(student.id, 'name', e.target.value)}
+                      placeholder="Enter name"
+                    />
+                  </div>
+                  {!isWholeClassMode ? (
+                    <>
+                      <div>
+                        <Label htmlFor={`sem-${student.id}`} className="block mb-2">Semester</Label>
+                        <Input
+                          id={`sem-${student.id}`}
+                          value={student.semester}
+                          onChange={e => updateStudent(student.id, 'semester', e.target.value)}
+                          placeholder="Enter semester"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`course-${student.id}`} className="block mb-2">Course</Label>
+                        <Input
+                          id={`course-${student.id}`}
+                          value={student.course}
+                          onChange={e => updateStudent(student.id, 'course', e.target.value)}
+                          placeholder="Enter course"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`section-${student.id}`} className="block mb-2">Section</Label>
+                        <Input
+                          id={`section-${student.id}`}
+                          value={student.section}
+                          onChange={e => updateStudent(student.id, 'section', e.target.value)}
+                          placeholder="Enter section"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor={`enroll-${student.id}`} className="block mb-2">Enrollment No</Label>
+                        <Input
+                          id={`enroll-${student.id}`}
+                          value={student.enrollmentNo}
+                          onChange={e => updateStudent(student.id, 'enrollmentNo', e.target.value)}
+                          placeholder="Enter enrollment number"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded px-3 py-2">
+                        <span className="font-medium">Semester:</span>
+                        <span className="ml-2">{classDetails.semester || 'Not set'}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded px-3 py-2">
+                        <span className="font-medium">Course:</span>
+                        <span className="ml-2">{classDetails.course || 'Not set'}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded px-3 py-2">
+                        <span className="font-medium">Section:</span>
+                        <span className="ml-2">{classDetails.section || 'Not set'}</span>
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor={`enroll-${student.id}`} className="block mb-2">Enrollment No</Label>
+                        <Input
+                          id={`enroll-${student.id}`}
+                          value={student.enrollmentNo}
+                          onChange={e => updateStudent(student.id, 'enrollmentNo', e.target.value)}
+                          placeholder="Enter enrollment number"
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </Card>
             ))}

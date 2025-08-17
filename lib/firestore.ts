@@ -32,9 +32,25 @@ export interface ODFormPayload {
     [key: string]: any
 }
 
+export interface StudentDataPayload {
+    student: StudentPayload
+    subjects: SubjectPayload[]
+    email: string
+    parentFormId: string
+    fileName: string
+    createdAt?: any
+}
+
 export async function saveODForm(data: ODFormPayload) {
     await ensureAuth().catch(() => { /* ignore */ })
     const ref = collection(db, "odForms")
+    const docRef = await addDoc(ref, { ...data, createdAt: serverTimestamp() })
+    return docRef.id
+}
+
+export async function saveStudentData(data: StudentDataPayload) {
+    await ensureAuth().catch(() => { /* ignore */ })
+    const ref = collection(db, "studentODData")
     const docRef = await addDoc(ref, { ...data, createdAt: serverTimestamp() })
     return docRef.id
 }
